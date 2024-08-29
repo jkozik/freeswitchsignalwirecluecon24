@@ -33,3 +33,37 @@ FREESWITCH_PASSWORD=XXXXXXXXX
 SIGNALWIRE_TOKEN=pat_QYsXXXXXXXXXXXXXXXXXXXX
 jkozik@u2004:~/projects/freeswitch-cluecon-lab$
 ```
+### Build Freeswitch
+```
+jkozik@u2004:~/projects/freeswitch-cluecon-lab$ docker compose build
+[+] Building 1.4s (17/17) FINISHED                                                                                                             docker:default
+ => [freeswitch internal] load build definition from Dockerfile 
+ => => transferring dockerfile: 2.58kB
+ => [freeswitch internal] load metadata for docker.io/library/debian:bullseye
+ => [freeswitch internal] load .dockerignore
+ => => transferring context: 2B  
+ => [freeswitch  1/12] FROM docker.io/library/debian:bullseye@sha256:0bb606aad3307370c8b4502eff11fde298e5b7721e59a0da3ce9b30cb92045ed  
+ => [freeswitch internal] load build context   
+ => => transferring context: 1.03kB              
+ => CACHED [freeswitch  2/12] RUN groupadd -r freeswitch --gid=999 && useradd -r -g freeswitch --uid=999 freeswitch  
+ => CACHED [freeswitch  3/12] RUN apt-get update && apt-get install -y locales wget && rm -rf /var/lib/apt/lists/*     && localedef -i en_US -c -f UTF- 
+ => CACHED [freeswitch  4/12] RUN apt-get update && apt-get install -y gosu curl gnupg2 wget lsb-release apt-transport-https ca-certificates     && wge 
+ => CACHED [freeswitch  5/12] RUN cat /etc/apt/sources.list.d/freeswitch.list   
+ => CACHED [freeswitch  6/12] RUN mv /bin/hostname /bin/hostname.bkp;   echo "echo myhost.local" > /bin/hostname;   chmod +x /bin/hostname
+ => CACHED [freeswitch  7/12] RUN apt-get update && apt-get install -y freeswitch-meta-all      
+ => CACHED [freeswitch  8/12] RUN apt-get update && apt-get install -y dnsutils     && apt-get clean && rm -rf /var/lib/apt/lists/* 
+ => CACHED [freeswitch  9/12] RUN mv /bin/hostname.bkp /bin/hostname   
+ => CACHED [freeswitch 10/12] RUN apt-get autoremove                     
+ => CACHED [freeswitch 11/12] COPY build/freeswitch.limits.conf /etc/security/limits.d/  
+ => CACHED [freeswitch 12/12] COPY build/docker-entrypoint.sh /   
+ => [freeswitch] exporting to image                                 
+ => => exporting layers   
+ => => writing image sha256:9f5a194baf5c1f69ce1a9a65594727c7580688f6dedceed44028c753d8bdef3c   
+ => => naming to docker.io/library/freeswitch-cluecon-lab-freeswitch
+```
+The underlying Dockerfile installs freeswitch from packages onto a Debian bullseye, version 11, which orignally came out in 2021.  Version 11.10 came out in June of 2024. The initial build took about 15 minutes.  The example above, everything was cached and it ran really quick.
+Note also, I use "docker compose" -- the new way.  The README said to use "docker-compose".  
+
+
+
+
