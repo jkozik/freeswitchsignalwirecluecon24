@@ -64,6 +64,46 @@ jkozik@u2004:~/projects/freeswitch-cluecon-lab$ docker compose build
 The underlying Dockerfile installs freeswitch from packages onto a Debian bullseye, version 11, which orignally came out in 2021.  Version 11.10 came out in June of 2024. The initial build took about 15 minutes.  The example above, everything was cached and it ran really quick.
 Note also, I use "docker compose" -- the new way.  The README said to use "docker-compose".  
 
+### Bring up container
+The original docker-compose file didn't work for me.  Maybe I should have used another one, but to get this one to work, I had to uncomment-out the host networking, selecting "network_mode: host" and enabling IPv6.
+```
+jkozik@u2004:~/projects/freeswitch-cluecon-lab$ docker compose up -d
+[+] Running 0/1
+ ⠇ Container freeswitch-community  Starting                                                                                                              1.9s
+Error response from daemon: failed to create task for container: failed to create shim task: OCI runtime create failed: runc create failed: sysctl "net.ipv6.conf.all.disable_ipv6" not allowed in host network namespace: unknown
+
+jkozik@u2004:~/projects/freeswitch-cluecon-lab$ vi docker-compose.yml
+jkozik@u2004:~/projects/freeswitch-cluecon-lab$ cat docker-compose.yml
+
+services:
+  freeswitch:
+    container_name: "freeswitch-community"
+    build:
+      context: .
+      args:
+        SIGNALWIRE_TOKEN: ${SIGNALWIRE_TOKEN}
+    volumes:
+      - ./conf:/etc/freeswitch
+        #sysctls:
+        #net.ipv6.conf.all.disable_ipv6: 1
+        #net.ipv6.conf.default.disable_ipv6: 1
+        #net.ipv6.conf.lo.disable_ipv6: 1
+    stdin_open: true
+    tty: true
+    env_file: .env
+    network_mode: "host"
+    command: ["freeswitch", "-nonatmap", "-nonat"]
+jkozik@u2004:~/projects/freeswitch-cluecon-lab$
+
+jkozik@u2004:~/projects/freeswitch-cluecon-lab$ docker compose up -d
+[+] Running 1/1
+ ✔ Container freeswitch-community  Started                                                                                                               1.5s
+jkozik@u2004:~/projects/freeswitch-cluecon-lab$ docker compose ps
+NAME                   IMAGE                               COMMAND                  SERVICE      CREATED          STATUS                    PORTS
+freeswitch-community   freeswitch-cluecon-lab-freeswitch   "/docker-entrypoint.…"   freeswitch   13 minutes ago   Up 13 minutes (healthy)
+jkozik@u2004:~/projects/freeswitch-cluecon-lab$
+```
+
 
 
 
