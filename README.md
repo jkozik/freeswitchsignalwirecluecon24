@@ -101,7 +101,100 @@ jkozik@u2004:~/projects/freeswitch-cluecon-lab$ docker compose up -d
 jkozik@u2004:~/projects/freeswitch-cluecon-lab$ docker compose ps
 NAME                   IMAGE                               COMMAND                  SERVICE      CREATED          STATUS                    PORTS
 freeswitch-community   freeswitch-cluecon-lab-freeswitch   "/docker-entrypoint.…"   freeswitch   13 minutes ago   Up 13 minutes (healthy)
+
+jkozik@u2004:~/projects/freeswitch-cluecon-lab$ netstat -tulp | grep -E "sip|5080"
+(Not all processes could be identified, non-owned process info
+ will not be shown, you would have to be root to see it all.)
+tcp        0      0 u2004.kozik.net:sip     0.0.0.0:*               LISTEN      -
+tcp        0      0 u2004.kozik.net:5080    0.0.0.0:*               LISTEN      -
+udp        0      0 u2004.kozik.net:sip     0.0.0.0:*                           -
+udp        0      0 u2004.kozik.net:5080    0.0.0.0:*                           -
 jkozik@u2004:~/projects/freeswitch-cluecon-lab$
+```
+In the official freeswitch repository in the [freeswitch/docker](https://github.com/signalwire/freeswitch/tree/master/docker) folder there is a section on [Ports](https://github.com/signalwire/freeswitch/tree/master/docker#ports).  It said to run docker containers with options "--network host".  So, I changed the docker compose file.  But that broke the sysctl lines that tried to disable IPv6. 
+
+Further, it is a good sanity test to see ports 5060 and 5080 visible on the netstat report.
+### Exec into the container
+The best next step is to login to the container and verify basic that the base freeswitch command line works.
+```
+jkozik@u2004:~/projects/freeswitch-cluecon-lab$ docker exec -it freeswitch-community  bash
+
+root@u2004:/# ls
+bin  boot  dev  docker-entrypoint.sh  etc  home  lib  lib64  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var
+
+root@u2004:/# echo $PATH
+/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+root@u2004:/# cd /etc
+
+root@u2004:/etc# ls
+adduser.conf            debian_version  group        issue          login.defs      netconfig      protocols    rmt            ssl                vulkan
+alternatives            default         group-       issue.net      logrotate.d     networks       python3      rpc            ssmtp              wgetrc
+apt                     deluser.conf    gshadow      kernel         machine-id      nsswitch.conf  python3.9    security       subgid             X11
+bash.bashrc             dhcp            gshadow-     ldap           magic           opt            rc0.d        selinux        subuid             xattr.conf
+bindresvport.blacklist  dpkg            gss          ld.so.cache    magic.mime      os-release     rc1.d        sensors3.conf  sysctl.d           xdg
+binfmt.d                e2scrub.conf    host.conf    ld.so.conf     mailname        pam.conf       rc2.d        sensors.d      systemd
+ca-certificates         environment     hostname     ld.so.conf.d   mime.types      pam.d          rc3.d        services       terminfo
+ca-certificates.conf    ethertypes      hosts        libaudit.conf  mke2fs.conf     passwd         rc4.d        shadow         timezone
+cron.d                  fonts           hosts.allow  locale.alias   modules-load.d  passwd-        rc5.d        shadow-        tmpfiles.d
+cron.daily              freeswitch      hosts.deny   locale.gen     motd            perl           rc6.d        shells         ucf.conf
+dbus-1                  fstab           init.d       localtime      mtab            profile        rcS.d        skel           update-motd.d
+debconf.conf            gai.conf        inputrc      logcheck       mysql           profile.d      resolv.conf  snmp           vdpau_wrapper.cfg
+
+root@u2004:/etc# cd freeswitch
+
+root@u2004:/etc/freeswitch# ls
+autoload_configs  dialplan         freeswitch.serial  ivr_menus        mime.types            README_IMPORTANT.txt  tetris.ttml  voicemail.tpl
+chatplan          directory        freeswitch.xml     jingle_profiles  mrcp_profiles         sip_profiles          tls          web-vm.tpl
+config.FS0        extensions.conf  fur_elise.ttml     lang             notify-voicemail.tpl  skinny_profiles       vars.xml     yaml
+root@u2004:/etc/freeswitch# cd
+
+root@u2004:~# fs_cli
+.=======================================================.
+|            _____ ____     ____ _     ___              |
+|           |  ___/ ___|   / ___| |   |_ _|             |
+|           | |_  \___ \  | |   | |    | |              |
+|           |  _|  ___) | | |___| |___ | |              |
+|           |_|   |____/   \____|_____|___|             |
+|                                                       |
+.=======================================================.
+| Anthony Minessale II, Ken Rice,                       |
+| Michael Jerris, Travis Cross                          |
+| FreeSWITCH (http://www.freeswitch.org)                |
+| Paypal Donations Appreciated: paypal@freeswitch.org   |
+| Brought to you by ClueCon http://www.cluecon.com/     |
+.=======================================================.
+
+
+.=======================================================================================================.
+|       _                            _    ____ _             ____                                       |
+|      / \   _ __  _ __  _   _  __ _| |  / ___| |_   _  ___ / ___|___  _ __                             |
+|     / _ \ | '_ \| '_ \| | | |/ _` | | | |   | | | | |/ _ \ |   / _ \| '_ \                            |
+|    / ___ \| | | | | | | |_| | (_| | | | |___| | |_| |  __/ |__| (_) | | | |                           |
+|   /_/   \_\_| |_|_| |_|\__,_|\__,_|_|  \____|_|\__,_|\___|\____\___/|_| |_|                           |
+|                                                                                                       |
+|    ____ _____ ____    ____             __                                                             |
+|   |  _ \_   _/ ___|  / ___|___  _ __  / _| ___ _ __ ___ _ __   ___ ___                                |
+|   | |_) || || |     | |   / _ \| '_ \| |_ / _ \ '__/ _ \ '_ \ / __/ _ \                               |
+|   |  _ < | || |___  | |__| (_) | | | |  _|  __/ | |  __/ | | | (_|  __/                               |
+|   |_| \_\|_| \____|  \____\___/|_| |_|_|  \___|_|  \___|_| |_|\___\___|                               |
+|                                                                                                       |
+|     ____ _             ____                                                                           |
+|    / ___| |_   _  ___ / ___|___  _ __         ___ ___  _ __ ___                                       |
+|   | |   | | | | |/ _ \ |   / _ \| '_ \       / __/ _ \| '_ ` _ \                                      |
+|   | |___| | |_| |  __/ |__| (_) | | | |  _  | (_| (_) | | | | | |                                     |
+|    \____|_|\__,_|\___|\____\___/|_| |_| (_)  \___\___/|_| |_| |_|                                     |
+|                                                                                                       |
+.=======================================================================================================.
+
+Type /help <enter> to see a list of commands
+
+
+
+
+[This app Best viewed at 160x60 or more..]
++OK log level  [7]
+freeswitch@u2004.kozik.net>
 ```
 
 
