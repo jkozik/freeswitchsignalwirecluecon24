@@ -328,3 +328,58 @@ freeswitch@u2004.kozik.net> /log 4
 +OK log level 4 [4]
 freeswitch@u2004.kozik.net>
 ```
+#### Zoiper / Freeswitch troubleshooting
+This installation comes preconfigured with 20 preconfigured 4 digit extensions in its directory with user ids 1000-1019, each sharing the same default password.  If the registration doesnt work, it is possible that the user id was entered wrong or the password was not setup correctly.
+
+One tool to try is sngrep.  Install it on the host and run it, not in the freeswitch docker container, and see if you can see the fault. Here's what a Zoiper registration looks like. 
+![image](https://github.com/user-attachments/assets/0884ac34-ff94-4a3c-ad2b-e588cf0e65c5)
+
+The tool lets you drill down to see the details of each of the messages.
+
+Further, the freeswitch fs_cli tool has an option to trace SIP messages.  To trace messages with a Voip client, select the internal profile.  See editted example trace of a registration
+```
+jkozik@u2004:~/projects/freeswitch-cluecon-lab$ docker exec -it freeswitch-community  bash
+root@u2004:/# fs_cli
+Type /help <enter> to see a list of commands
+
+[This app Best viewed at 160x60 or more..]
++OK log level  [7]
+
+freeswitch@u2004.kozik.net> /log 4
++OK log level 4 [4]
+
+freeswitch@u2004.kozik.net> sofia profile internal siptrace on
+Enabled sip debugging on internal
+recv 875 bytes from tcp/[192.168.100.106]:60065 at 19:39:37.410129:
+------------------------------------------------------------------------
+REGISTER sip:192.168.100.128:5060;transport=TCP SIP/2.0
+Via: SIP/2.0/TCP 192.168.100.106:61970;branch=z9hG4bK-524287-1---9f009a793c824a9c;rport
+Max-Forwards: 70
+Contact: <sip:1001@192.168.100.106:61970;rinstance=e52c63865c034b38;transport=tcp>;expires=0
+To: <sip:1001@192.168.100.128:5060;transport=TCP>
+From: <sip:1001@192.168.100.128:5060;transport=TCP>;tag=1b25b75b
+Call-ID: 4tmRZhmm70Bu3Bcvd-S3zQ..
+CSeq: 3 REGISTER
+Allow: INVITE, ACK, CANCEL, BYE, NOTIFY, REFER, MESSAGE, OPTIONS, INFO, SUBSCRIBE
+User-Agent: Z 5.5.12 v2.10.18.2
+Authorization: Digest username="1001",realm="192.168.100.128",nonce="fcbfacd5-a32f-4dce-9186-fb87bb194c4f",uri="sip:192.168.100.128:5060;transport=TCP",response="e7a76b4f70f322ab6331e83f44e874fb",cnonce="7345dcad0b8d09da114aaa601bfaa771",nc=00000002,qop=auth,algorithm=MD5
+Allow-Events: presence, kpml, talk
+Content-Length: 0
+
+
+send 592 bytes to tcp/[192.168.100.106]:60065 at 19:39:37.423456:
+------------------------------------------------------------------------
+SIP/2.0 200 OK
+Via: SIP/2.0/TCP 192.168.100.106:61970;branch=z9hG4bK-524287-1---9f009a793c824a9c;rport=60065
+From: <sip:1001@192.168.100.128:5060;transport=TCP>;tag=1b25b75b
+To: <sip:1001@192.168.100.128:5060;transport=TCP>;tag=Z3K02XQ60HgSc
+Call-ID: 4tmRZhmm70Bu3Bcvd-S3zQ..
+CSeq: 3 REGISTER
+Date: Fri, 30 Aug 2024 19:39:37 GMT
+User-Agent: FreeSWITCH-mod_sofia/1.10.12-release-10222002881-a88d069d6f+git~20240802T210227Z~a88d069d6f~64bit
+Allow: INVITE, ACK, BYE, CANCEL, OPTIONS, MESSAGE, INFO, UPDATE, REGISTER, REFER, NOTIFY
+Supported: timer, path, replaces
+Content-Length: 0
+freeswitch@u2004.kozik.net>
+```
+
