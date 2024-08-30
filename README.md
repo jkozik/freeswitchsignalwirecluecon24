@@ -195,7 +195,13 @@ Type /help <enter> to see a list of commands
 [This app Best viewed at 160x60 or more..]
 +OK log level  [7]
 freeswitch@u2004.kozik.net>
+2024-08-30 13:06:08.382598 97.50% [NOTICE] mod_signalwire.c:401 Go to https://signalwire.com to set up your Connector now! Enter connection token c6bc2107-f513-42b7-b03d-2XXXXXXXXXXXXX
+2024-08-30 13:06:08.402607 97.50% [INFO] mod_signalwire.c:1125 Next SignalWire adoption check in 15 minutes
 ```
+### Setup Freeswitch <-> Signalwire connector
+When running fs_cli, every few minutes a message pops up to the [signalwire.com](https://signalwire.com) website and setup a connecor. Using the token provided by the prompt, I found the New Freeswitch Connection page under the Integrations menu and created a connection.
+![image](https://github.com/user-attachments/assets/e29256fa-10e0-4824-8562-e64de8f7f9cf)
+
 
 
 
