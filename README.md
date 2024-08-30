@@ -268,7 +268,6 @@ jkozik@u2004:~/projects/freeswitch-cluecon-lab/conf/autoload_configs$ grep -E "(
          <param name="rtp-start-port" value="20000"/>
          <param name="rtp-end-port" value="20100"/>
 jkozik@u2004:~/projects/freeswitch-cluecon-lab/conf/autoload_configs$
-```
 jkozik@u2004:~/projects/freeswitch-cluecon-lab/conf/autoload_configs$ docker exec -it freeswitch-community  bash
 root@u2004:/# fs_cli
 freeswitch@u2004.kozik.net> 
