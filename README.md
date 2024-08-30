@@ -284,12 +284,47 @@ min idle cpu 0.00/96.87
 Current Stack Size/Max 240K/8192K
 ```
 ## Connect SIP Clients
-Freeswitch is cycling, its sip stack looks normal, and now the next step is to connect SIP phones.  I have two of them:
+Freeswitch is cycling, its sip stack looks normal, and now the next step is to connect SIP phones.  I have two of them running on my home LAN:
 - [ZioPer](https://www.zoiper.com/).  It is a freeware client that runs on PCs and mobile phones.  I have it running my Windows 11 laptop in on my home LAN
-- 
+- [Yealink W60B](https://www.yealink.com/en/product-detail/zoom-phone-w60p). This is an IP phone plus a basestation that can support upto 8 phones.  It uses DECT wireless between the physical phones and the basestation.  The base station connect to the local network over ethernet (my case) or WIFI.  All the IP phones share the same IP address. The IP phone defaults to one of 8 SIP accounts.  The phone can select an outboud SIP account on a per call basis.  I have the phone connected to my account with Voip.ms.  I added an accout with my Freeswitch.
+
+### Setup ZoiPer on Freeswitch
+I didn't find documentation the freeswitch for setting up Zoiper, but I found a good writeup on [Zoiper — FusionPBX Docs documentation](https://docs.fusionpbx.com/en/latest/applications/provision/provision_manual_zoiper.html).  Here's what I did:
+- I downloaded and installed the free client from [Zoiper.com](https://www.zoiper.com/)
+- Open Zoiper and create an account.  Pick user 1001 and use 192.168.100.128 as the domain.  Use the password provided in the .env file when freeswitch was installed.
+![image](https://github.com/user-attachments/assets/ec54e9b1-87ec-407a-9c62-945ecdc62d72)
+
+- It will prompt for a provider, enter the freeswitch IP address 192.168.100.128:5060 with port number
+![image](https://github.com/user-attachments/assets/59b7ec66-5ca6-4119-b3a6-037437c
+a692b)
+
+![image](https://github.com/user-attachments/assets/6326a8b5-d057-43f7-b22a-c620c819dfe6)
+
+- Skip outbound proxy
+  
+- Verify that Zoiper is able to register
+![image](https://github.com/user-attachments/assets/abfe6448-ce64-4abb-8db4-1b6b93874f8d)
+
+- When finished you should see this:
+![image](https://github.com/user-attachments/assets/dcb87f70-25be-4d31-8b23-47294e3de01e)
+
+- Verify that freeswitch shows the registration
+```
+jkozik@u2004:~$ docker exec -it freeswitch-community  bash
+root@u2004:/# fs_cli
+
+Type /help <enter> to see a list of commands
 
 
 
 
+[This app Best viewed at 160x60 or more..]
++OK log level  [7]
+freeswitch@u2004.kozik.net> show registrations
+reg_user,realm,token,url,expires,network_ip,network_port,network_proto,hostname,metadata
+1001,192.168.100.128,M_x25dCeGAnXuDs_J-zlPQ..,sofia/internal/sip:1001@192.168.100.106:61970;rinstance=4a2b9ccbed8e5dc4;transport=tcp,1725046112,192.168.100.106,60065,tcp,u2004.kozik.net,
 
-
+freeswitch@u2004.kozik.net> /log 4
++OK log level 4 [4]
+freeswitch@u2004.kozik.net>
+```
