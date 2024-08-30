@@ -202,6 +202,10 @@ freeswitch@u2004.kozik.net>
 When running fs_cli, every few minutes a message pops up to the [signalwire.com](https://signalwire.com) website and setup a connecor. Using the token provided by the prompt, I found the New Freeswitch Connection page under the Integrations menu and created a connection.
 ![image](https://github.com/user-attachments/assets/e29256fa-10e0-4824-8562-e64de8f7f9cf)
 
+Once connected, Signalwire prompts for a phone number to associate with this connection.  This number is used when calling to the PSTN, this is what will show as the calling number, its it the number that will display on the called-party's phone.  I bought a phone number from signalwire and I am using that number. You could also enter your mobile phone for this.  
+![image](https://github.com/user-attachments/assets/153f33c2-d0e6-4e8a-85fd-76d1f5c8267e)
+
+
 
 
 
