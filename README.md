@@ -285,7 +285,7 @@ Current Stack Size/Max 240K/8192K
 ```
 ## Connect SIP Clients
 Freeswitch is cycling, its sip stack looks normal, and now the next step is to connect SIP phones.  I have two of them:
-- Zioper.  It is a freeware client that runs on PCs and mobile phones.  I have it running my Windows 11 laptop in on my home LAN
+- [ZioPer](https://www.zoiper.com/).  It is a freeware client that runs on PCs and mobile phones.  I have it running my Windows 11 laptop in on my home LAN
 - 
 
 
