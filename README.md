@@ -236,6 +236,58 @@ Here's what this says:
 - The external profile is listening on port 5080 and only listens to my WAN interface;  which by the way is NAT'd and I am using the Freeswitch default settings and it works fine.
 - I don't have a domain name setup for my freeswitch, thus its name is the same as the Freeswitch IP address, 192.168.100.128 
 
+## Firewall Settings
+So far, I have not needed to set any firewall rules.  But Freeswitch does need some ports open.  This freeswitch is running Docker on my non-firewalled Ubuntu 22.04 server (as recommended in the README).  I need to open ports on my Home LAN firewall. The [Freeswitch Network->Firewall](https://developer.signalwire.com/freeswitch/FreeSWITCH-Explained/Networking/Firewall_1048908) is very detailed.
+
+My firewall is a pfsense router, and in the Firewall->NAT menu, I setup some rules for SIP port 5080 and RTP port on 20000-20100.
+
+![image](https://github.com/user-attachments/assets/f85a273f-99f8-4ab0-9674-8a818cf9ee64)
+
+The rules say:
+- map TCP/UDP traffic from ports 5080/5081 to the Freeswitch hosted at 192.168.100.128.
+- open a block of UDP ports for RTP traffic and map them to the same Freeswitch host
+
+Note: I already have a couple of other Voip solutions in my house and I am reluctant to open too many UDP ports for RTP. Freeswitch's default range overlaps with my existing setup.  I hope the range is ok.
+
+Because I am using a restricted RTP port range, the rtp-start-port and rtp-end-port parameters in the Swithc.conf.xml file need to be reset. (Source: [Switch.conf.xml](https://developer.signalwire.com/freeswitch/FreeSWITCH-Explained/Configuration/Configuring-FreeSWITCH/Switch.conf.xml_9634306). 
+
+To edit this file, I exited fs_cli, I exited the container and I edited a switch.conf.xml mounted under the conf directory.
+
+```
+jkozik@u2004:~/projects/freeswitch-cluecon-lab/conf/autoload_configs$ cd ~/projects/freeswitch-cluecon-lab
+jkozik@u2004:~/projects/freeswitch-cluecon-lab$ cd conf
+jkozik@u2004:~/projects/freeswitch-cluecon-lab/conf$ # This directory is mounted inside of the freeswitch container
+jkozik@u2004:~/projects/freeswitch-cluecon-lab/conf$ cd autoload_configs/
+jkozik@u2004:~/projects/freeswitch-cluecon-lab/conf/autoload_configs$ # Change the default RTP ports
+jkozik@u2004:~/projects/freeswitch-cluecon-lab/conf/autoload_configs$ grep -E "(rtp-start-port|rtp-end-port)" switch.conf.xml
+    <!-- <param name="rtp-start-port" value="16384"/> -->
+    <!-- <param name="rtp-end-port" value="32768"/> -->
+jkozik@u2004:~/projects/freeswitch-cluecon-lab/conf/autoload_configs$ # change them to 20000->20100
+jkozik@u2004:~/projects/freeswitch-cluecon-lab/conf/autoload_configs$ vi switch.conf.xml
+jkozik@u2004:~/projects/freeswitch-cluecon-lab/conf/autoload_configs$ grep -E "(rtp-start-port|rtp-end-port)" switch.conf.xml
+         <param name="rtp-start-port" value="20000"/>
+         <param name="rtp-end-port" value="20100"/>
+jkozik@u2004:~/projects/freeswitch-cluecon-lab/conf/autoload_configs$
+```
+jkozik@u2004:~/projects/freeswitch-cluecon-lab/conf/autoload_configs$ docker exec -it freeswitch-community  bash
+root@u2004:/# fs_cli
+freeswitch@u2004.kozik.net> 
+freeswitch@u2004.kozik.net> reloadxml
++OK [Success]
+freeswitch@u2004.kozik.net> status
+UP 0 years, 0 days, 17 hours, 57 minutes, 36 seconds, 785 milliseconds, 995 microseconds
+FreeSWITCH (Version 1.10.12 -release-10222002881-a88d069d6fgit a88d069 2024-08-02 21:02:27Z 64bit) is ready
+0 session(s) since startup
+0 session(s) - peak 0, last 5min 0
+0 session(s) per Sec out of max 30, peak 0, last 5min 0
+1000 session(s) max
+min idle cpu 0.00/96.87
+Current Stack Size/Max 240K/8192K
+```
+## Connect SIP Clients
+Freeswitch is cycling, its sip stack looks normal, and now the next step is to connect SIP phones.  I have two of them:
+- Zioper.  It is a freeware client that runs on PCs and mobile phones.  I have it running my Windows 11 laptop in on my home LAN
+- 
 
 
 
