@@ -382,4 +382,22 @@ Supported: timer, path, replaces
 Content-Length: 0
 freeswitch@u2004.kozik.net>
 ```
+### Setup Yealink IP Phone
+The ATA box that comes with my IP phone has a web portal on it.  Under the Account tab, I selected an unused account, Account 5 and configured extension 1002 to the server host 192.168.100.128 using the same password as the .env.  See screen capture below.
+![image](https://github.com/user-attachments/assets/310e5144-19f5-4d0b-964e-a0e08f5af62d)
+I pressed confirm and the top of the page indicated Registered.  
+
+Verify that freeswitch sees the second registration:
+```
+freeswitch@u2004.kozik.net> show registrations
+reg_user,realm,token,url,expires,network_ip,network_port,network_proto,hostname,metadata
+1002,192.168.100.128,4_1905926168@192.168.100.94,sofia/internal/sip:1002@192.168.100.94:5060;transport=TCP,1725052903,192.168.100.94,12698,tcp,u2004.kozik.net,
+1001,192.168.100.128,3KBvk-7T-uLuwrJLb0FIjg..,sofia/internal/sip:1001@192.168.100.106:61970;rinstance=2572aeda33b3c223;transport=tcp,1725050252,192.168.100.106,60065,tcp,u2004.kozik.net,
+
+2 total.
+
+freeswitch@u2004.kozik.net>
+```
+### Verify that Zoiper <-> Yealink can call each other
+At the Zoiper client, enter the phone number 1002. You should hear audible ring from the Zoiper client an the Yealink phone should ring.  Answer the call. 
 
