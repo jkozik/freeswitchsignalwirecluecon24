@@ -204,6 +204,38 @@ When running fs_cli, every few minutes a message pops up to the [signalwire.com]
 
 Once connected, Signalwire prompts for a phone number to associate with this connection.  This number is used when calling to the PSTN, this is what will show as the calling number, its it the number that will display on the called-party's phone.  I bought a phone number from signalwire and I am using that number. You could also enter your mobile phone for this.  
 ![image](https://github.com/user-attachments/assets/153f33c2-d0e6-4e8a-85fd-76d1f5c8267e)
+### Setup Signalwire Phone number to Freeswtich Connector linkage
+In the signalwire Phone Number menu, edit your phone number to point to your Freeswitch connector.
+
+Phone Number Menu:
+![image](https://github.com/user-attachments/assets/a702a63e-6e92-47f4-8e43-62c7f163dc75)
+
+Edit phone number to connector to your Freeswitch integration:
+![image](https://github.com/user-attachments/assets/8039b7e9-e20b-405d-93cc-d43b0e656aaa)
+
+### Verify SIP stack
+The default SIP configuration should basically be working.  From the fs_cli command line we can see the following:
+```
+freeswitch@u2004.kozik.net> /log 4
++OK log level 4 [4]
+freeswitch@u2004.kozik.net> sofia status
+                     Name          Type                                       Data      State
+=================================================================================================
+               signalwire       profile          sip:mod_sofia@69.243.158.102:6051      RUNNING (0) (TLS)
+   signalwire::signalwire       gateway   sip:4dc289a674caa985be7f3f8cc029040b@jkozik-63eecb1e59a343e4b71567f323a71d52.sip.signalwire.com       REGED
+          192.168.100.128         alias                                   internal      ALIASED
+                 external       profile          sip:mod_sofia@69.243.158.102:5080      RUNNING (0)
+    external::example.com       gateway                    sip:joeuser@example.com      NOREG
+                 internal       profile         sip:mod_sofia@192.168.100.128:5060      RUNNING (0)
+=================================================================================================
+3 profiles 1 alias
+```
+Here's what this says:
+- The gateway called signalwire::signalwire shows registered to the signalwire service.  This is the freeswitch SIP trunk.
+- The interal profile is listening on port 5060 on my home LAN.  It only sees SIP clients on my home network.
+- The external profile is listening on port 5080 and only listens to my WAN interface;  which by the way is NAT'd and I am using the Freeswitch default settings and it works fine.
+- I don't have a domain name setup for my freeswitch, thus its name is the same as the Freeswitch IP address, 192.168.100.128 
+
 
 
 
