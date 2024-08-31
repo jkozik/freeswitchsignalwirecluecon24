@@ -399,5 +399,101 @@ reg_user,realm,token,url,expires,network_ip,network_port,network_proto,hostname,
 freeswitch@u2004.kozik.net>
 ```
 ### Verify that Zoiper <-> Yealink can call each other
-At the Zoiper client, enter the phone number 1002. You should hear audible ring from the Zoiper client an the Yealink phone should ring.  Answer the call. 
+At the Zoiper client, enter the phone number 1002. You should hear audible ring from the Zoiper client an the Yealink phone should ring.  Answer the call on the Yealink. Verify the talk path, both ways.  Hangup.
+
+Repeat for Yealink IP phone calling the Zoiper softphone.
+
+This should work.  For background, it is useful to study what is going on here.  When one extension calls another, this is an internal call and it uses the default dial plan. No interactions with Signalwire happen.  
+
+It is useful to turn on full debug level logging to see all the steps freeswitch goes through to setup a call.  I would like to however focus on a subset on what the Dialplan log shows.  It turns out to be very useful for troubleshooting.  
+
+First set the log and logfilter rules as follows then place a call from 1002 (Yealink) to 1001 (Zoiper) and see the following Dialplan log traces
+```
+freeswitch@u2004.kozik.net> /log 4
++OK log level 4 [4]
+
+freeswitch@u2004.kozik.net> /logfilter Dialplan
+Logfilter enabled
+
+Dialplan: sofia/internal/1002@192.168.100.128:5060 parsing [public->unloop] continue=false
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Regex (PASS) [unloop] ${unroll_loops}(true) =~ /^true$/ break=on-false
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Regex (FAIL) [unloop] ${sip_looped_call}() =~ /^true$/ break=on-false
+Dialplan: sofia/internal/1002@192.168.100.128:5060 parsing [public->outside_call] continue=true
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Absolute Condition [outside_call]
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Action set(outside_call=true)
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Action export(RFC2822_DATE=${strftime(%a, %d %b %Y %T %z)})
+Dialplan: sofia/internal/1002@192.168.100.128:5060 parsing [public->call_debug] continue=true
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Regex (FAIL) [call_debug] ${call_debug}(false) =~ /^true$/ break=never
+Dialplan: sofia/internal/1002@192.168.100.128:5060 parsing [public->public_extensions] continue=false
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Regex (PASS) [public_extensions] destination_number(1001) =~ /^(10[01][0-9])$/ break=on-false
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Action transfer(1001 XML default)
+Dialplan: sofia/internal/1002@192.168.100.128:5060 parsing [default->unloop] continue=false
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Regex (PASS) [unloop] ${unroll_loops}(true) =~ /^true$/ break=on-false
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Regex (FAIL) [unloop] ${sip_looped_call}() =~ /^true$/ break=on-false
+Dialplan: sofia/internal/1002@192.168.100.128:5060 parsing [default->tod_example] continue=true
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Date/TimeMatch (FAIL) [tod_example] break=on-false
+Dialplan: sofia/internal/1002@192.168.100.128:5060 parsing [default->holiday_example] continue=true
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Date/TimeMatch (FAIL) [holiday_example] break=on-false
+Dialplan: sofia/internal/1002@192.168.100.128:5060 parsing [default->global-intercept] continue=false
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Regex (FAIL) [global-intercept] destination_number(1001) =~ /^886$/ break=on-false
+Dialplan: sofia/internal/1002@192.168.100.128:5060 parsing [default->group-intercept] continue=false
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Regex (FAIL) [group-intercept] destination_number(1001) =~ /^\*8$/ break=on-false
+Dialplan: sofia/internal/1002@192.168.100.128:5060 parsing [default->intercept-ext] continue=false
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Regex (FAIL) [intercept-ext] destination_number(1001) =~ /^\*\*(\d+)$/ break=on-false
+Dialplan: sofia/internal/1002@192.168.100.128:5060 parsing [default->redial] continue=false
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Regex (FAIL) [redial] destination_number(1001) =~ /^(redial|870)$/ break=on-false
+Dialplan: sofia/internal/1002@192.168.100.128:5060 parsing [default->global] continue=true
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Regex (FAIL) [global] ${call_debug}(false) =~ /^true$/ break=never
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Regex (FAIL) [global] ${default_password}(Klick?123) =~ /^1234$/ break=never
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Regex (FAIL) [global] ${rtp_has_crypto}() =~ /^(AEAD_AES_256_GCM_8|AEAD_AES_128_GCM_8|AES_CM_256_HMAC_SHA1_80|AES_CM_192_HMAC_SHA1_80|AES_CM_128_HMAC_SHA1_80|AES_CM_256_HMAC_SHA1_32|AES_CM_192_HMAC_SHA1_32|AES_CM_128_HMAC_SHA1_32|AES_CM_128_NULL_AUTH)$/ break=never
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Regex (FAIL) [global] ${endpoint_disposition}(RECEIVED) =~ /^(DELAYED NEGOTIATION)/ break=on-false
+Dialplan: sofia/internal/1002@192.168.100.128:5060 parsing [default->snom-demo-2] continue=false
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Regex (FAIL) [snom-demo-2] destination_number(1001) =~ /^9001$/ break=on-false
+Dialplan: sofia/internal/1002@192.168.100.128:5060 parsing [default->snom-demo-1] continue=false
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Regex (FAIL) [snom-demo-1] destination_number(1001) =~ /^9000$/ break=on-false
+Dialplan: sofia/internal/1002@192.168.100.128:5060 parsing [default->eavesdrop] continue=false
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Regex (FAIL) [eavesdrop] destination_number(1001) =~ /^88(\d{4})$|^\*0(.*)$/ break=on-false
+Dialplan: sofia/internal/1002@192.168.100.128:5060 parsing [default->eavesdrop] continue=false
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Regex (FAIL) [eavesdrop] destination_number(1001) =~ /^779$/ break=on-false
+Dialplan: sofia/internal/1002@192.168.100.128:5060 parsing [default->call_return] continue=false
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Regex (FAIL) [call_return] destination_number(1001) =~ /^\*69$|^869$|^lcr$/ break=on-false
+Dialplan: sofia/internal/1002@192.168.100.128:5060 parsing [default->del-group] continue=false
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Regex (FAIL) [del-group] destination_number(1001) =~ /^80(\d{2})$/ break=on-false
+Dialplan: sofia/internal/1002@192.168.100.128:5060 parsing [default->add-group] continue=false
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Regex (FAIL) [add-group] destination_number(1001) =~ /^81(\d{2})$/ break=on-false
+Dialplan: sofia/internal/1002@192.168.100.128:5060 parsing [default->call-group-simo] continue=false
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Regex (FAIL) [call-group-simo] destination_number(1001) =~ /^82(\d{2})$/ break=on-false
+Dialplan: sofia/internal/1002@192.168.100.128:5060 parsing [default->call-group-order] continue=false
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Regex (FAIL) [call-group-order] destination_number(1001) =~ /^83(\d{2})$/ break=on-false
+Dialplan: sofia/internal/1002@192.168.100.128:5060 parsing [default->extension-intercom] continue=false
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Regex (FAIL) [extension-intercom] destination_number(1001) =~ /^8(10[01][0-9])$/ break=on-false
+Dialplan: sofia/internal/1002@192.168.100.128:5060 parsing [default->Local_Extension] continue=false
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Regex (PASS) [Local_Extension] destination_number(1001) =~ /^(10[01][0-9])$/ break=on-false
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Action export(dialed_extension=1001)
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Action bind_meta_app(1 b s execute_extension::dx XML features)
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Action bind_meta_app(2 b s record_session::/var/lib/freeswitch/recordings/${caller_id_number}.${strftime(%Y-%m-%d-%H-%M-%S)}.wav)
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Action bind_meta_app(3 b s execute_extension::cf XML features)
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Action bind_meta_app(4 b s execute_extension::att_xfer XML features)
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Action set(ringback=${us-ring})
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Action set(transfer_ringback=local_stream://moh)
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Action set(call_timeout=30)
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Action set(hangup_after_bridge=true)
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Action set(continue_on_fail=true)
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Action hash(insert/${domain_name}-call_return/${dialed_extension}/${caller_id_number})
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Action hash(insert/${domain_name}-last_dial_ext/${dialed_extension}/${uuid})
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Action set(called_party_callgroup=${user_data(${dialed_extension}@${domain_name} var callgroup)})
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Action hash(insert/${domain_name}-last_dial_ext/${called_party_callgroup}/${uuid})
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Action hash(insert/${domain_name}-last_dial_ext/global/${uuid})
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Action hash(insert/${domain_name}-last_dial/${called_party_callgroup}/${uuid})
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Action bridge(user/${dialed_extension}@${domain_name})
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Action answer()
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Action sleep(1000)
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Action bridge(loopback/app=voicemail:default ${domain_name} ${dialed_extension})
+```
+A few comments on above:
+- Each extension is defined in a ../conf/directory/default/100[0-9].xml configuration file.  In that file the local extensions are assigned to the  name="user_context" value="default" user context.  This means that dialed digits will be processed by the default dial plan, located at ../conf/dialplan/default.xml and ../conf/dialplan/dialplan directory.
+- In this log trace, the calling party 1002 dialed a destination_number 1001
+- In the default.xml file are a series of extensions that execute an action if a condition is true.  Each unique extension is named, shown in [...]
+- The above trace show dozens of extensions, most of which use a regular expression string to test against the destination_number
+
 
