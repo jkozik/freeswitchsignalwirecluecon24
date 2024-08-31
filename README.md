@@ -540,4 +540,90 @@ jkozik@u2004:~/projects/freeswitch-cluecon-lab/conf/dialplan/default$ cat 01_abS
 </include>
 ```
 This new file gets automatically included into the default.xml dialplan.
+Then going back to the fs_cli session, reload the parameters (reloadxml) and observe the dialplan trace (excerpt).
+```
+2024-08-31 21:52:46.422594 95.30% [INFO] mod_dialplan_xml.c:639 Processing +16302153142 <+16302153142>->+16303874223 in context default
+. . .
+Dialplan: sofia/signalwire/+16302153142@sip.signalwire.com parsing [default->hold_music] continue=false
+Dialplan: sofia/signalwire/+16302153142@sip.signalwire.com Regex (FAIL) [hold_music] destination_number(+16303874223) =~ /^9664$/ break=on-false
+Dialplan: sofia/signalwire/+16302153142@sip.signalwire.com parsing [default->laugh break] continue=false
+Dialplan: sofia/signalwire/+16302153142@sip.signalwire.com Regex (FAIL) [laugh break] destination_number(+16303874223) =~ /^9386$/ break=on-false
+Dialplan: sofia/signalwire/+16302153142@sip.signalwire.com parsing [default->101] continue=false
+Dialplan: sofia/signalwire/+16302153142@sip.signalwire.com Regex (FAIL) [101] destination_number(+16303874223) =~ /^101$/ break=on-false
+Dialplan: sofia/signalwire/+16302153142@sip.signalwire.com parsing [default->pizza_demo] continue=false
+Dialplan: sofia/signalwire/+16302153142@sip.signalwire.com Regex (FAIL) [pizza_demo] destination_number(+16303874223) =~ /^(pizza|74992)$/ break=on-false
+Dialplan: sofia/signalwire/+16302153142@sip.signalwire.com parsing [default->Talking Clock Time] continue=false
+Dialplan: sofia/signalwire/+16302153142@sip.signalwire.com Regex (FAIL) [Talking Clock Time] destination_number(+16303874223) =~ /^9170$/ break=on-false
+Dialplan: sofia/signalwire/+16302153142@sip.signalwire.com parsing [default->Talking Clock Date] continue=false
+Dialplan: sofia/signalwire/+16302153142@sip.signalwire.com Regex (FAIL) [Talking Clock Date] destination_number(+16303874223) =~ /^9171$/ break=on-false
+Dialplan: sofia/signalwire/+16302153142@sip.signalwire.com parsing [default->Talking Clock Date and Time] continue=false
+Dialplan: sofia/signalwire/+16302153142@sip.signalwire.com Regex (FAIL) [Talking Clock Date and Time] destination_number(+16303874223) =~ /^9172$/ break=on-false
+Dialplan: sofia/signalwire/+16302153142@sip.signalwire.com parsing [default->SignalWire INTEGRATIONS incoming call] continue=false
+Dialplan: sofia/signalwire/+16302153142@sip.signalwire.com Regex (PASS) [SignalWire INTEGRATIONS incoming call] destination_number(+16303874223) =~ /^(\+16303874223)$/ break=on-false
+Dialplan: sofia/signalwire/+16302153142@sip.signalwire.com Action bridge(user/1001)
+```
+The call from my mobile phone to my signalwire matches the regular expression `^(\+16303874223)$` and gets bridged to extension 1001 which is my Zoiper client.  
+### Dialplan for Signalwire outgoing call
+In this case my home Yealink phone is dialing my mobile phone (630215-XXXX.  My mobile phone sees the caller id as my signalwire phone number (630387-XXXX). Likewise, the [Signalwire Dialplan example](https://developer.signalwire.com/freeswitch/FreeSWITCH-Explained/Modules/mod_signalwire_19595544/#3-dialplan-sample) gives boilerplate that can be added to the outgoing dialing plan.
 
+First, try to make a call and look at the trace and confirm that the call uses the outgoing / public dialing plan.
+```
+2024-08-31 22:04:20.809944 95.20% [INFO] mod_dialplan_xml.c:639 Processing yealink <1002>->16302153142 in context public
+Dialplan: sofia/internal/1002@192.168.100.128:5060 parsing [public->unloop] continue=false
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Regex (PASS) [unloop] ${unroll_loops}(true) =~ /^true$/ break=on-false
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Regex (FAIL) [unloop] ${sip_looped_call}() =~ /^true$/ break=on-false
+Dialplan: sofia/internal/1002@192.168.100.128:5060 parsing [public->outside_call] continue=true
+```
+The above is excerpt of the trace from an outgoing call attempt.  It gave a busy signal because no signalwire dialing plan extension was configured.  Different from the incoming, I need to add an extension to the public dialing plan.
+```
+jkozik@u2004:~/projects/freeswitch-cluecon-lab/conf/dialplan/public$ pwd
+/home/jkozik/projects/freeswitch-cluecon-lab/conf/dialplan/public
+
+jkozik@u2004:~/projects/freeswitch-cluecon-lab/conf/dialplan/public$ cat 01_aaSignalWirePSTN.xml
+<include>
+   <extension name="signalwire INTEGRATIONS outgoing call">
+    <condition field="destination_number" expression="^(\d{11})$">
+      <action application="set" data="effective_caller_id_number=${outbound_caller_id_number}"/>
+      <action application="set" data="effective_caller_id_name=${outbound_caller_id_name}"/>
+      <action application="answer"/>
+      <action application="bridge" data="sofia/gateway/signalwire/+$1"/>
+    </condition>
+   </extension>
+</include>
+jkozik@u2004:~/projects/freeswitch-cluecon-lab/conf/dialplan/public$
+```
+Note:
+- The extension xml file is in the public folder.  It will automatically get included on a reloadxml command from the fs_cli prompt
+- The signalwire SIP trunk is configured as a SIP profile of type gateway, named signalwire.  See sofia status dump.
+- The outgoing call has 10 digits:  1630215XXXX. The regular expression `^(\d{11})$' is matched and its value is put into $1
+-  The SIP trunk requires a + sign.  See the bridge data parameter
+
+Then, going back to the fs_cli prompt, run reloadxml and try an outgoing test call from the Yealink IP phone (1002) to my mobile phone (1630215-XXXX) and verify that the incoming call shows a caller id of my signalwire phone number (1630387-XXXX).
+```
+freeswitch@u2004.kozik.net> reloadxml
++OK [Success]
+
+2024-08-31 22:21:20.902617 95.33% [INFO] mod_dialplan_xml.c:639 Processing yealink <1002>->16302153142 in context public
+Dialplan: sofia/internal/1002@192.168.100.128:5060 parsing [public->unloop] continue=false
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Regex (PASS) [unloop] ${unroll_loops}(true) =~ /^true$/ break=on-false
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Regex (FAIL) [unloop] ${sip_looped_call}() =~ /^true$/ break=on-false
+Dialplan: sofia/internal/1002@192.168.100.128:5060 parsing [public->outside_call] continue=true
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Absolute Condition [outside_call]
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Action set(outside_call=true)
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Action export(RFC2822_DATE=${strftime(%a, %d %b %Y %T %z)})
+Dialplan: sofia/internal/1002@192.168.100.128:5060 parsing [public->call_debug] continue=true
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Regex (FAIL) [call_debug] ${call_debug}(false) =~ /^true$/ break=never
+Dialplan: sofia/internal/1002@192.168.100.128:5060 parsing [public->public_extensions] continue=false
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Regex (FAIL) [public_extensions] destination_number(16302153142) =~ /^(10[01][0-9])$/ break=on-false
+Dialplan: sofia/internal/1002@192.168.100.128:5060 parsing [public->public_conference_extensions] continue=false
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Regex (FAIL) [public_conference_extensions] destination_number(16302153142) =~ /^(3[5-8][01][0-9])$/ break=on-false
+Dialplan: sofia/internal/1002@192.168.100.128:5060 parsing [public->public_did] continue=false
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Regex (FAIL) [public_did] destination_number(16302153142) =~ /^(5551212)$/ break=on-false
+Dialplan: sofia/internal/1002@192.168.100.128:5060 parsing [public->signalwire INTEGRATIONS outgoing call] continue=false
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Regex (PASS) [signalwire INTEGRATIONS outgoing call] destination_number(16302153142) =~ /^(\d{11})$/ break=on-false
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Action set(effective_caller_id_number=${outbound_caller_id_number})
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Action set(effective_caller_id_name=${outbound_caller_id_name})
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Action answer()
+Dialplan: sofia/internal/1002@192.168.100.128:5060 Action bridge(sofia/gateway/signalwire/+16302153142)
+```
+The outgoing call worked. Skim the dialplan log trace and see how outgoing calls are parsed. 
