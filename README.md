@@ -398,6 +398,7 @@ reg_user,realm,token,url,expires,network_ip,network_port,network_proto,hostname,
 
 freeswitch@u2004.kozik.net>
 ```
+## Verify SIP Clients on Home LAN
 ### Verify that Zoiper <-> Yealink can call each other
 At the Zoiper client, enter the phone number 1002. You should hear audible ring from the Zoiper client an the Yealink phone should ring.  Answer the call on the Yealink. Verify the talk path, both ways.  Hangup.
 
@@ -506,9 +507,37 @@ A few comments on above:
 The freeswitch bridges the incoming call to the dialed_extension and answers the call. Ta-Dah !
 
 It is useful to review the default.xml file.  Is is full of example extensions that hightlight the power of the freeswitch feature set. 
+
 #### Yealink to Zoiper 1002->1001 SIP trace
 For completeness, here's one half of the SIP call trace for the call from 1002 to 1001.  Note, this was run from the host root login outside of the freeswitch docker container.  
 ![image](https://github.com/user-attachments/assets/0a655103-0cd7-45ca-8e3d-206b70176f3a)
 
+## Configure Signalwire SIP trunk
+The signalware connector creates a gateway sip profile automatically, but there needs to be a linkage between the SIP trunk and the dialing plan.  The [Signalwire Dialplan example](https://developer.signalwire.com/freeswitch/FreeSWITCH-Explained/Modules/mod_signalwire_19595544/#3-dialplan-sample) gives boilerplate that can be added to the dialing plan.
+### Dialplan for Signalwire incoming call
+The incoming call is routed to freeswitch from signalwire with a destination_number equal to the phone number bought and registered from the signalwire portal.  In my case it's +1630387XXXX.  My default the call routes to freeswitch and gives a busy signal.  See the first few lines of default fs_cli trace:
+```
+jkozik@u2004:~$ docker exec -it freeswitch-community  bash
+root@u2004:/# fs_cli
+Type /help <enter> to see a list of commands
+[This app Best viewed at 160x60 or more..]
++OK log level  [7]
+2024-08-31 20:57:32.802859 95.47% [INFO] mod_dialplan_xml.c:639 Processing +1630215XXXX <+1630215XXXX>->+1630387XXXX in context default
+2024-08-31 20:57:32.862560 95.47% [NOTICE] switch_core_state_machine.c:382 sofia/signalwire/+1630215XXXX@sip.signalwire.com has executed the last dialplan instruction, hanging up.
+```
+Note that it shows the incoming call from my mobile phone to my signalwire number.  But it fails with a busy signal.  Note:  the incoming call was processed in the `default` dialplan.  
 
+I copy/pasted and edited the following default extension:
+```
+/home/jkozik/projects/freeswitch-cluecon-lab/conf/dialplan/default
+jkozik@u2004:~/projects/freeswitch-cluecon-lab/conf/dialplan/default$ cat 01_abSignalWireIncomingFromPSTN.xml
+<include>
+    <extension name="SignalWire INTEGRATIONS incoming call">
+      <condition field="destination_number" expression="^(\+16303874223)$"> <!-- the number you assigned in your dashboard -->
+        <action application="bridge" data="user/1001"/>
+      </condition>
+    </extension>
+</include>
+```
+This new file gets automatically included into the default.xml dialplan.
 
