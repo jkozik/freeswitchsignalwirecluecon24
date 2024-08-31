@@ -401,9 +401,10 @@ freeswitch@u2004.kozik.net>
 ### Verify that Zoiper <-> Yealink can call each other
 At the Zoiper client, enter the phone number 1002. You should hear audible ring from the Zoiper client an the Yealink phone should ring.  Answer the call on the Yealink. Verify the talk path, both ways.  Hangup.
 
-Repeat for Yealink IP phone calling the Zoiper softphone.
+Repeat for Yealink IP phone calling the Zoiper softphone. This should work. 
 
-This should work.  For background, it is useful to study what is going on here.  When one extension calls another, this is an internal call and it uses the default dial plan. No interactions with Signalwire happen.  
+#### Yealink to Zoiper 1002->1001 Dialplan trace
+For background, it is useful to study what is going on here.  When one extension calls another, this is an internal call and it uses the default dial plan. No interactions with Signalwire happen.  
 
 It is useful to turn on full debug level logging to see all the steps freeswitch goes through to setup a call.  I would like to however focus on a subset on what the Dialplan log shows.  It turns out to be very useful for troubleshooting.  
 
@@ -495,5 +496,19 @@ A few comments on above:
 - In this log trace, the calling party 1002 dialed a destination_number 1001
 - In the default.xml file are a series of extensions that execute an action if a condition is true.  Each unique extension is named, shown in [...]
 - The above trace show dozens of extensions, most of which use a regular expression string to test against the destination_number
+- The first match for the 1001 is the extension `Local_Extension` regular expression `^(10[01][0-9])$`
+- Once the condition is matched a series of actions are performed
+- The key action at the end of the extention object are the following
+```
+        <action application="bridge" data="user/${dialed_extension}@${domain_name}"/>
+        <action application="answer"/>
+```
+The freeswitch bridges the incoming call to the dialed_extension and answers the call. Ta-Dah !
+
+It is useful to review the default.xml file.  Is is full of example extensions that hightlight the power of the freeswitch feature set. 
+#### Yealink to Zoiper 1002->1001 SIP trace
+For completeness, here's one half of the SIP call trace for the call from 1002 to 1001.  Note, this was run from the host root login outside of the freeswitch docker container.  
+![image](https://github.com/user-attachments/assets/0a655103-0cd7-45ca-8e3d-206b70176f3a)
+
 
 
