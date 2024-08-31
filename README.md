@@ -627,3 +627,5 @@ Dialplan: sofia/internal/1002@192.168.100.128:5060 Action answer()
 Dialplan: sofia/internal/1002@192.168.100.128:5060 Action bridge(sofia/gateway/signalwire/+16302153142)
 ```
 The outgoing call worked. Skim the dialplan log trace and see how outgoing calls are parsed. 
+And for reference the outgoing call over the signalwire SIP trunk generated the call flow below:
+![image](https://github.com/user-attachments/assets/8df48152-b8be-4673-a8e7-997ef430f2fd)
