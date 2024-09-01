@@ -640,8 +640,6 @@ And for reference the outgoing call over the signalwire SIP trunk generated the 
     - [Making and Receiving Phone Calls](https://developer.signalwire.com/guides/voice/making-and-receiving-phone-calls/)
     - [Setting Up a SIP Endpoint](https://developer.signalwire.com/guides/set-up-a-signalwire-phone-number-with-a-sip-endpoint)
     - [Installing FreeSWITCH or FreeSWITCH Advantage](https://developer.signalwire.com/guides/installing-freeswitch-or-freeswitch-advantage)
-
-    - 
 - [Running a PBX(FreeSwitch) in Docker as a house intercom](https://medium.com/@sertys/running-a-pbx-freeswitch-in-docker-as-a-house-intercom-3f3e4c6ef6c9)
     - [sertys3/freeswitch-docker](https://github.com/sertys3/freeswitch-docker)
 - [dheaps/freeswitch](https://hub.docker.com/r/dheaps/freeswitch)
