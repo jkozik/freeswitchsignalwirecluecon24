@@ -289,6 +289,8 @@ Freeswitch is cycling, its sip stack looks normal, and now the next step is to c
 - [Yealink W60B](https://www.yealink.com/en/product-detail/zoom-phone-w60p). This is an IP phone plus a basestation that can support upto 8 phones.  It uses DECT wireless between the physical phones and the basestation.  The base station connect to the local network over ethernet (my case) or WIFI.  All the IP phones share the same IP address. The IP phone defaults to one of 8 SIP accounts.  The phone can select an outboud SIP account on a per call basis.  I have the phone connected to my account with Voip.ms.  I added an accout with my Freeswitch.
 
 ### Setup ZoiPer on Freeswitch
+![image](https://github.com/user-attachments/assets/756f1a8f-16df-4535-a795-6c26a9cc4f60)
+
 I didn't find documentation the freeswitch for setting up Zoiper, but I found a good writeup on [Zoiper — FusionPBX Docs documentation](https://docs.fusionpbx.com/en/latest/applications/provision/provision_manual_zoiper.html).  Here's what I did:
 - I downloaded and installed the free client from [Zoiper.com](https://www.zoiper.com/)
 - Open Zoiper and create an account.  Pick user 1001 and use 192.168.100.128 as the domain.  Use the password provided in the .env file when freeswitch was installed.
@@ -383,6 +385,8 @@ Content-Length: 0
 freeswitch@u2004.kozik.net>
 ```
 ### Setup Yealink IP Phone
+![image](https://github.com/user-attachments/assets/54df9a30-16a3-4338-9a00-9dbef5bd9a4b)
+
 The ATA box that comes with my IP phone has a web portal on it.  Under the Account tab, I selected an unused account, Account 5 and configured extension 1002 to the server host 192.168.100.128 using the same password as the .env.  See screen capture below.
 ![image](https://github.com/user-attachments/assets/310e5144-19f5-4d0b-964e-a0e08f5af62d)
 I pressed confirm and the top of the page indicated Registered.  
@@ -630,9 +634,14 @@ The outgoing call worked. Skim the dialplan log trace and see how outgoing calls
 And for reference the outgoing call over the signalwire SIP trunk generated the call flow below:
 ![image](https://github.com/user-attachments/assets/8df48152-b8be-4673-a8e7-997ef430f2fd)
 ## References
+- [Connecting FreeSWITCH to SignalWire CLOUD](https://signalwire.com/blogs/freeswitch/mod-signalwire?utm_source=marketo&utm_medium=email&utm_campaign=AI-OH-082024&utm_content=button&mkt_tok=MjYyLUhHUi0zMTEAAAGVFVRWyyjq-0Ib-rw6vIw4Jn0m_Lnc3t1z7bl2PrdBRG2ce-BL0KpVmDpTsl-YCg6-8bTUfIt1BtyGfPkrV-BwNYe3DU-fM6F7KRUGXRs)
 - [signalwire/freeswitch](https://github.com/signalwire/freeswitch/tree/master)
     - [freeswitch-cluecon-lab](https://github.com/signalwire/freeswitch-cluecon-lab)
     - [Making and Receiving Phone Calls](https://developer.signalwire.com/guides/voice/making-and-receiving-phone-calls/)
+    - [Setting Up a SIP Endpoint](https://developer.signalwire.com/guides/set-up-a-signalwire-phone-number-with-a-sip-endpoint)
+    - [Installing FreeSWITCH or FreeSWITCH Advantage](https://developer.signalwire.com/guides/installing-freeswitch-or-freeswitch-advantage)
+
+    - 
 - [Running a PBX(FreeSwitch) in Docker as a house intercom](https://medium.com/@sertys/running-a-pbx-freeswitch-in-docker-as-a-house-intercom-3f3e4c6ef6c9)
     - [sertys3/freeswitch-docker](https://github.com/sertys3/freeswitch-docker)
 - [dheaps/freeswitch](https://hub.docker.com/r/dheaps/freeswitch)
@@ -649,4 +658,7 @@ And for reference the outgoing call over the signalwire SIP trunk generated the 
     - [XML Dialplan](https://developer.signalwire.com/freeswitch/FreeSWITCH-Explained/Dialplan/XML-Dialplan/]
     - [Dialplan sample](https://developer.signalwire.com/freeswitch/FreeSWITCH-Explained/Modules/mod_signalwire_19595544/)
     - [Switch.conf.xml](https://developer.signalwire.com/freeswitch/FreeSWITCH-Explained/Configuration/Configuring-FreeSWITCH/Switch.conf.xml_9634306)
-    - 
+    - [Command Line Interface (fs_cli)](https://developer.signalwire.com/freeswitch/FreeSWITCH-Explained/Client-and-Developer-Interfaces/1048948/)
+    - -[mod_commands](https://developer.signalwire.com/freeswitch/FreeSWITCH-Explained/Modules/mod_commands_1966741/)
+- [Freeswitch Port Range](https://wiki.kolmisoft.com/index.php/Freeswitch_Port_Range)
+- 
