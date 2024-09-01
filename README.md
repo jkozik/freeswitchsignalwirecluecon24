@@ -629,3 +629,11 @@ Dialplan: sofia/internal/1002@192.168.100.128:5060 Action bridge(sofia/gateway/s
 The outgoing call worked. Skim the dialplan log trace and see how outgoing calls are parsed. 
 And for reference the outgoing call over the signalwire SIP trunk generated the call flow below:
 ![image](https://github.com/user-attachments/assets/8df48152-b8be-4673-a8e7-997ef430f2fd)
+## References
+- [Running a PBX(FreeSwitch) in Docker as a house intercom](https://medium.com/@sertys/running-a-pbx-freeswitch-in-docker-as-a-house-intercom-3f3e4c6ef6c9)
++  [sertys3/freeswitch-docker](https://github.com/sertys3/freeswitch-docker)
+- [dheaps/freeswitch](https://hub.docker.com/r/dheaps/freeswitch)
+- [drachtio/drachtio-freeswitch-mrf](https://hub.docker.com/r/drachtio/drachtio-freeswitch-mrf)
+- [bettervoice/freeswitch-container](https://hub.docker.com/r/bettervoice/freeswitch-container/)
+- [signalwire/freeswitch/docker](https://github.com/signalwire/freeswitch/tree/master/docker)
+- [signalwire/freeswitch/docker/base_image](https://github.com/signalwire/freeswitch/blob/master/docker/base_image/README.md)
