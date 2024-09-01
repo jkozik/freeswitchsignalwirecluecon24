@@ -5,9 +5,11 @@ As part of the Wednesday Lunch and Learn with Luca Pradovera, he ran through a F
 
 Luca indeed made it look easy, but when I tried it, I had some learning curve issues.  I document my experience here to help others who are new to setting up Freeswitch+Signalwire in a container environment.  Thanks to Luca, Brian and Jon for their help.
 
-In summary, I cloned Luca's repository, built it, exec'd into the container and connected it to signalwire, configured the SIP client, verified that the registered, make the SIP clients call each other, setup my home LAN firewall, add Signalwire incoming and outgoing extensions in the dial plan and finally have a SIP client call my mobile phone and have my mobile phone call my SIP client. 
+In summary, I cloned Luca's repository, built it, exec'd into the container and connected it to signalwire, configured the SIP clients, verified that they registered, make the SIP clients call each other, setup my home LAN firewall, added Signalwire incoming and outgoing extensions in the freeswitch dial plan and finally had a SIP client call my mobile phone and had my mobile phone call my SIP client. 
 
-I learned alot about setting up and troubleshoot Freeswitch.  I included descriptions of how I verified the SIP registration, traced the SIP calls, traced the dialing plan, and tweaked the parameters of Freeswitch.
+I learned alot about the tools and best practices for setting up and troubleshooting Freeswitch.  In the writeup below, I included descriptions of how I verified the SIP registration, traced the SIP calls, traced the dialing plan, and tweaked the parameters of Freeswitch.
+
+For reference, here's the architecture chart for what I setup on my Home LAN.  
 
 ![image](https://github.com/user-attachments/assets/89ac8b83-ed67-45aa-a42b-e16d9ad01190)
 
