@@ -636,4 +636,4 @@ And for reference the outgoing call over the signalwire SIP trunk generated the 
 - [drachtio/drachtio-freeswitch-mrf](https://hub.docker.com/r/drachtio/drachtio-freeswitch-mrf)
 - [bettervoice/freeswitch-container](https://hub.docker.com/r/bettervoice/freeswitch-container/)
 - [signalwire/freeswitch/docker](https://github.com/signalwire/freeswitch/tree/master/docker)
-- [signalwire/freeswitch/docker/base_image](https://github.com/signalwire/freeswitch/blob/master/docker/base_image/README.md)
+    - [signalwire/freeswitch/docker/base_image](https://github.com/signalwire/freeswitch/blob/master/docker/base_image/README.md)
