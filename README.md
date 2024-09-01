@@ -630,10 +630,23 @@ The outgoing call worked. Skim the dialplan log trace and see how outgoing calls
 And for reference the outgoing call over the signalwire SIP trunk generated the call flow below:
 ![image](https://github.com/user-attachments/assets/8df48152-b8be-4673-a8e7-997ef430f2fd)
 ## References
+- [signalwire/freeswitch](https://github.com/signalwire/freeswitch/tree/master)
+    - [freeswitch-cluecon-lab](https://github.com/signalwire/freeswitch-cluecon-lab)
+    - [Making and Receiving Phone Calls](https://developer.signalwire.com/guides/voice/making-and-receiving-phone-calls/)
 - [Running a PBX(FreeSwitch) in Docker as a house intercom](https://medium.com/@sertys/running-a-pbx-freeswitch-in-docker-as-a-house-intercom-3f3e4c6ef6c9)
     - [sertys3/freeswitch-docker](https://github.com/sertys3/freeswitch-docker)
 - [dheaps/freeswitch](https://hub.docker.com/r/dheaps/freeswitch)
 - [drachtio/drachtio-freeswitch-mrf](https://hub.docker.com/r/drachtio/drachtio-freeswitch-mrf)
 - [bettervoice/freeswitch-container](https://hub.docker.com/r/bettervoice/freeswitch-container/)
 - [signalwire/freeswitch/docker](https://github.com/signalwire/freeswitch/tree/master/docker)
-    - [signalwire/freeswitch/docker/base_image](https://github.com/signalwire/freeswitch/blob/master/docker/base_image/README.md)
+    - [signalwire/freeswitch/docker/base_image](https://github.com/signalwire/freeswitch/blob/ma)ster/docker/base_image/README.md)
+- [Omid-Mohajerani/freeswitch](https://github.com/Omid-Mohajerani/freeswitch)
+    - [FreeSWITCH 1.10 installation guide from source on debian 11](https://github.com/Omid-Mohajerani/freeswitch/wiki/FreeSWITCH-1.10-installation-guide-from-source-on-debian-11#post-installation)
+    - [Learn FreeSWITCH (Part6) - Sip Profiles, Directory and Dialplan](https://www.youtube.com/watch?v=nSj1htnz4vE)
+    - [Learn FreeSWITCH part 7 How to add SIP Trunk ( Gateway)](https://github.com/Omid-Mohajerani/freeswitch/wiki/Learn-FreeSWITCH-part-7----How-to-add-SIP-Trunk-(-Gateway))
+ - [SignalWire with Fred - SignalWire CLOUD | FreeSWITCH Connector](https://www.youtube.com/watch?v=MMktpp_PdqI)
+ - [Freeswitch Explained](https://developer.signalwire.com/freeswitch/FreeSWITCH-Explained/)
+    - [XML Dialplan](https://developer.signalwire.com/freeswitch/FreeSWITCH-Explained/Dialplan/XML-Dialplan/]
+    - [Dialplan sample](https://developer.signalwire.com/freeswitch/FreeSWITCH-Explained/Modules/mod_signalwire_19595544/)
+    - [Switch.conf.xml](https://developer.signalwire.com/freeswitch/FreeSWITCH-Explained/Configuration/Configuring-FreeSWITCH/Switch.conf.xml_9634306)
+    - 
