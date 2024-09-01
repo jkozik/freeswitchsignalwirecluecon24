@@ -1,9 +1,15 @@
 # Freeswitch Setup using Cluecon 2024 Lunch and Learn
 I attended the [Cluecon 2024](https://www.cluecon.com/) conference this year.  It was my 5th time.  The conference was excellent.
 
-As part of the Wednesday Lunch and Learn with Luca Pradovera, he ran through a Freeswitch + Signalwire demo. It was a compelling demo that showed how easy it is to add Signalwire to Freeswitch, and by extension how easy it was to add Signalwire's AI features.  The repository for the demo, [freeswitch-cluecon-lab](https://github.com/signalwire/freeswitch-cluecon-lab) contained everything he used. So I decided I wanted to re-create the demo on my home LAN.
+As part of the Wednesday Lunch and Learn with Luca Pradovera, he ran through a Freeswitch + Signalwire demo. It was a compelling demo that showed how easy it is to add Signalwire to Freeswitch.  The repository for the demo, [freeswitch-cluecon-lab](https://github.com/signalwire/freeswitch-cluecon-lab) contained everything he used. So I decided I wanted to re-create the demo on my home LAN.
 
 Luca indeed made it look easy, but when I tried it, I had some learning curve issues.  I document my experience here to help others who are new to setting up Freeswitch+Signalwire in a container environment.  Thanks to Luca, Brian and Jon for their help.
+
+In summary, I cloned Luca's repository, built it, exec'd into the container and connected it to signalwire, configured the SIP client, verified that the registered, make the SIP clients call each other, setup my home LAN firewall, add Signalwire incoming and outgoing extensions in the dial plan and finally have a SIP client call my mobile phone and have my mobile phone call my SIP client. 
+
+I learned alot about setting up and troubleshoot Freeswitch.  I included descriptions of how I verified the SIP registration, traced the SIP calls, traced the dialing plan, and tweaked the parameters of Freeswitch.
+
+
 
 # Install Freeswitch from container
 
@@ -633,6 +639,13 @@ Dialplan: sofia/internal/1002@192.168.100.128:5060 Action bridge(sofia/gateway/s
 The outgoing call worked. Skim the dialplan log trace and see how outgoing calls are parsed. 
 And for reference the outgoing call over the signalwire SIP trunk generated the call flow below:
 ![image](https://github.com/user-attachments/assets/8df48152-b8be-4673-a8e7-997ef430f2fd)
+## Summary
+To get the freeswitch-cluecon-lab repository to work on my home LAN with Signalwire I had to modify the following:
+- **docker-compose.yml**. I needed to tweek it to do `--network host` and enable IPv6
+- **switch.conf.xml**. I needed to restrict the rtp-start/end-port range to fit my home network setup
+- **dialplan/default**.  I needed to add an extension for signalwire incoming from PSTN calls. I mapped the calls to my SIP extension 1001 (Zoiper client)
+- **dialplan/public**.  I needed to add an extension for signalwire outgoing to PSTN calls. This was configured to show my signalwire phone number as my calling party id
+- **pfsense firewall**.  On my home LAN I needed to map incoming 5080 to my home LAN's freeswitch and open a range of UDP ports and map them to my freeswitch. 
 ## References
 - [Connecting FreeSWITCH to SignalWire CLOUD](https://signalwire.com/blogs/freeswitch/mod-signalwire?utm_source=marketo&utm_medium=email&utm_campaign=AI-OH-082024&utm_content=button&mkt_tok=MjYyLUhHUi0zMTEAAAGVFVRWyyjq-0Ib-rw6vIw4Jn0m_Lnc3t1z7bl2PrdBRG2ce-BL0KpVmDpTsl-YCg6-8bTUfIt1BtyGfPkrV-BwNYe3DU-fM6F7KRUGXRs)
 - [signalwire/freeswitch](https://github.com/signalwire/freeswitch/tree/master)
