@@ -9,6 +9,7 @@ In summary, I cloned Luca's repository, built it, exec'd into the container and 
 
 I learned alot about setting up and troubleshoot Freeswitch.  I included descriptions of how I verified the SIP registration, traced the SIP calls, traced the dialing plan, and tweaked the parameters of Freeswitch.
 
+![image](https://github.com/user-attachments/assets/89ac8b83-ed67-45aa-a42b-e16d9ad01190)
 
 
 # Install Freeswitch from container
